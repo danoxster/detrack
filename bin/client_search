@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'client_search'
+ClientSearch.say_hello

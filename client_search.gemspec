@@ -6,4 +6,5 @@ Gem::Specification.new do |s|
   s.authors     = ["Dan Simmonds"]
   s.email       = "danoxster@gmail.com"
   s.files       = ["lib/client_search.rb"]
+  s.executables << "client_search"
 end
