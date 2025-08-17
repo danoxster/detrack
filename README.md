@@ -105,4 +105,8 @@ docker run -i --rm client_search --duplicates < test/fixtures/clients.json
 * I have made the assumption that the size of data here will be around the size of the data provided. This should still work with thousands of client entries, but may struggle with tens of thousands. I made this decision as it was explicitly stated that scale will be addressed in the follow up interview.
 * I timed-boxed this to just what I could get done on a Sunday evening. With more time I would have added some linting to this project to reduce the cognitive load around code style.
 
+## Wishlist
 
+With more time I would make a few improvements like:
+* Fuzzy searching on names. Instead of just looking for exact substring matches, we could calculate the distance between a search term and each name, then return a limited number of entries by the word distance. This would return results in order of relevance and reduce mistakes made by typos in search terms or not knowing the exact spelling of a name.
+* Better output formatting. The current format is a very simple `to_s` method on the Client object. And improvement would be to return results in a table format which would be easier on the eyes. In addition we could provide formatting options such as JSON or CSV for clients that want to perform further processing on the filtered data.
