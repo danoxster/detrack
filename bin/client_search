@@ -1,4 +1,55 @@
 #!/usr/bin/env ruby
 
 require 'client_search'
-ClientSearch.say_hello
+require 'tempfile'
+
+USAGE = 'Usage: client_search <search_term> [filename] (or pipe JSON via stdin)'
+
+def name_search(filename, search_term)
+  if search_term.nil? || search_term.strip.empty?
+    puts USAGE
+    exit 1
+  end
+
+  # Determine if the input is a filename or STDIN
+  if filename.nil?
+    if STDIN.tty?
+      puts USAGE
+      exit 1
+    else
+      # Read from stdin and write to temp file
+      temp_file = Tempfile.new('client_search')
+      temp_file.write(STDIN.read)
+      temp_file.close
+      filename = temp_file.path
+    end
+  elsif !File.exist?(filename)
+    puts "Error: File '#{filename}' does not exist"
+    puts USAGE
+    exit 1
+  end
+
+  # Load the client search functionality
+  begin
+    client_search = ClientSearch.new(filename)
+    puts "Search results:"
+    results = client_search.find_by_partial_name_match(partial_name: search_term)
+
+    if results.empty?
+      puts "No matches found for '#{search_term}'"
+    else
+      results.each { |client| puts client }
+    end
+  rescue => e
+    puts "Error: #{e.message}"
+    exit 1
+  ensure
+    # Clean up temp file if we created one
+    temp_file&.unlink if defined?(temp_file)
+  end
+end
+
+search_term = ARGV[0]
+filename = ARGV[1]
+
+name_search(filename, search_term)
