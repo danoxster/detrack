@@ -1,8 +1,5 @@
 class ClientSearch
 
-  def self.say_hello
-    puts "Hello from ClientSearch!"
-  end
-
+  def self.say_hello = "Hello from ClientSearch!"
 
 end
