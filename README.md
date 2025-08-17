@@ -32,27 +32,39 @@ This will install the application.
 Usage is:
 
 ```
-client_search <search_term> [filename] (or pipe JSON via stdin)
+client_search --name <search_term> [filename] (or pipe JSON via stdin)
+client_search --duplicates [filename] (or pipe JSON via stdin)
+client_search --help
+  -n, --name SEARCH_TERM           Search for clients by partial name match
+  -d, --duplicates                 Find clients with duplicate email addresses
+  -h, --help                       Show this help message
 ```
 
 To test this with a the provided clients.json file use:
 
 ```
-client_search jane test/fixtures/clients.json
+client_search --name jane test/fixtures/clients.json
+client_search --duplicates test/fixtures/clients.json
 ```
 
 This will return the following output to STDIN:
 
 ```
-Search results:
+Name search results for 'jane':
 Jane Smith (2) <jane.smith@yahoo.com>
 Another Jane Smith (15) <jane.smith@yahoo.com>
+
+Duplicate email search results:
+
+Duplicate email: jane.smith@yahoo.com
+  Jane Smith (2) <jane.smith@yahoo.com>
+  Another Jane Smith (15) <jane.smith@yahoo.com>
 ```
 
 Alternatively you can send the file to STDIN with:
 
 ```
-client_search jane < test/fixtures/clients.json
+client_search --name jane < test/fixtures/clients.json
 ```
 
 ## Running in Docker
@@ -68,12 +80,14 @@ docker build -t client_search .
 Then you can use docker to run the application:
 
 ```
-docker run -i --rm client_search client_search jane test/fixtures/clients.json
+docker run -i --rm client_search --name jane test/fixtures/clients.json
+docker run -i --rm client_search --duplicates test/fixtures/clients.json
 ```
 
-Note: that this will use the client.json file in the docker container. To use a local file you need to send the contents via STDIN like:
+Note: that this will use the client.json file in the docker container. To use a local file you need to send the client list via STDIN like:
 
 ```
-docker run -i --rm client_search client_search jane < test/fixtures/clients.json
+docker run -i --rm client_search --name jane < test/fixtures/clients.json
+docker run -i --rm client_search --duplicates < test/fixtures/clients.json
 ```
 

@@ -1,38 +1,50 @@
 #!/usr/bin/env ruby
 
 require 'client_search'
-require 'tempfile'
+require 'optparse'
 
-USAGE = 'Usage: client_search <search_term> [filename] (or pipe JSON via stdin)'
+USAGE = <<~USAGE
+Usage:
+  client_search --name <search_term> [filename] (or pipe JSON via stdin)
+  client_search --duplicates [filename] (or pipe JSON via stdin)
+  client_search --help
+USAGE
 
-def name_search(filename, search_term)
-  if search_term.nil? || search_term.strip.empty?
-    puts USAGE
-    exit 1
-  end
-
-  # Determine if the input is a filename or STDIN
-  if filename.nil?
-    if STDIN.tty?
-      puts USAGE
-      exit 1
-    else
-      # Read from stdin and write to temp file
-      temp_file = Tempfile.new('client_search')
-      temp_file.write(STDIN.read)
-      temp_file.close
-      filename = temp_file.path
-    end
-  elsif !File.exist?(filename)
+def get_file_content(filename = nil)
+  if !filename.nil? && !File.exist?(filename)
     puts "Error: File '#{filename}' does not exist"
     puts USAGE
     exit 1
   end
 
-  # Load the client search functionality
+  if filename.nil?
+    # Check if stdin is a tty OR if there's no data piped to stdin
+    if STDIN.tty? || STDIN.eof?
+      puts USAGE
+      exit 1
+    else
+      stdin_content = STDIN.read
+      if stdin_content.empty?
+        puts USAGE
+        exit 1
+      end
+      stdin_content
+    end
+  else
+    File.read(filename)
+  end
+end
+
+def name_search(search_term, filename)
+  if search_term.nil? || search_term.strip.empty?
+    puts "Error: Search term is required for name search"
+    puts USAGE
+    exit 1
+  end
+
   begin
-    client_search = ClientSearch.new(filename)
-    puts "Search results:"
+    client_search = ClientSearch.new(get_file_content(filename))
+    puts "Name search results for '#{search_term}':"
     results = client_search.find_by_partial_name_match(partial_name: search_term)
 
     if results.empty?
@@ -43,13 +55,63 @@ def name_search(filename, search_term)
   rescue => e
     puts "Error: #{e.message}"
     exit 1
-  ensure
-    # Clean up temp file if we created one
-    temp_file&.unlink if defined?(temp_file)
   end
 end
 
-search_term = ARGV[0]
-filename = ARGV[1]
+def duplicate_search(filename)
+  begin
+    client_search = ClientSearch.new(get_file_content(filename))
+    puts "Duplicate email search results:"
+    results = client_search.find_duplicate_emails
 
-name_search(filename, search_term)
+    if results.empty?
+      puts "No duplicate emails found"
+    else
+      results.each do |email, clients|
+        puts "\nDuplicate email: #{email}"
+        clients.each { |c| puts "  #{c}" }
+      end
+    end
+  rescue => e
+    puts "Error: #{e.message}"
+    exit 1
+  end
+end
+
+# Parse command line options
+search_type = nil
+search_term = nil
+
+OptionParser.new do |opts|
+  opts.banner = USAGE
+
+  opts.on("-n", "--name SEARCH_TERM", "Search for clients by partial name match") do |term|
+    search_type = :name
+    search_term = term
+  end
+
+  opts.on("-d", "--duplicates", "Find clients with duplicate email addresses") do
+    search_type = :duplicates
+  end
+
+  opts.on("-h", "--help", "Show this help message") do
+    puts opts
+    exit 0
+  end
+end.parse!
+
+# Check if a search type was specified
+if search_type.nil?
+  puts "Error: Must specify either --name or --duplicates"
+  puts USAGE
+  exit 1
+end
+
+# Execute the appropriate search
+filename = ARGV[0]
+case search_type
+when :name
+  name_search(search_term, filename)
+when :duplicates
+  duplicate_search(filename)
+end
