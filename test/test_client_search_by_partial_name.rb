@@ -6,6 +6,8 @@ class TestClientSearchByPartialName < Minitest::Test
   def setup
     client_json_path = File.join(__dir__, 'fixtures', 'clients.json')
     @client_json = File.read(client_json_path)
+    missing_fields_path = File.join(__dir__, 'fixtures', 'missing_fields.json')
+    @missing_fields_json = File.read(missing_fields_path)
   end
 
   def test_all_janes_are_found
@@ -67,5 +69,12 @@ class TestClientSearchByPartialName < Minitest::Test
     client_search = ClientSearch.new(@client_json)
     search_results = client_search.find_by_partial_name_match(partial_name: search_string)
     assert search_results.empty?, 'Search results should be empty'
+  end
+
+  def test_with_missing_fields
+    search_string = 'Michael'
+    client_search = ClientSearch.new(@missing_fields_json)
+    search_results = client_search.find_by_partial_name_match(partial_name: search_string)
+    assert search_results.empty?, "Missing name field should not be found in #{search_results}"
   end
 end

@@ -37,7 +37,7 @@ end
 
 def name_search(search_term, filename)
   if search_term.nil? || search_term.strip.empty?
-    puts "Error: Search term is required for name search"
+    puts 'Error: Search term is required for name search'
     puts USAGE
     exit 1
   end
@@ -61,11 +61,11 @@ end
 def duplicate_search(filename)
   begin
     client_search = ClientSearch.new(get_file_content(filename))
-    puts "Duplicate email search results:"
+    puts 'Duplicate email search results:'
     results = client_search.find_duplicate_emails
 
     if results.empty?
-      puts "No duplicate emails found"
+      puts 'No duplicate emails found'
     else
       results.each do |email, clients|
         puts "\nDuplicate email: #{email}"
@@ -85,16 +85,16 @@ search_term = nil
 OptionParser.new do |opts|
   opts.banner = USAGE
 
-  opts.on("-n", "--name SEARCH_TERM", "Search for clients by partial name match") do |term|
+  opts.on('-n', '--name SEARCH_TERM', 'Search for clients by partial name match') do |term|
     search_type = :name
     search_term = term
   end
 
-  opts.on("-d", "--duplicates", "Find clients with duplicate email addresses") do
+  opts.on('-d', '--duplicates', 'Find clients with duplicate email addresses') do
     search_type = :duplicates
   end
 
-  opts.on("-h", "--help", "Show this help message") do
+  opts.on('-h', '--help', 'Show this help message') do
     puts opts
     exit 0
   end
@@ -102,7 +102,7 @@ end.parse!
 
 # Check if a search type was specified
 if search_type.nil?
-  puts "Error: Must specify either --name or --duplicates"
+  puts 'Error: Must specify either --name or --duplicates'
   puts USAGE
   exit 1
 end

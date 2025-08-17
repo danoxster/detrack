@@ -27,13 +27,13 @@ class TestClientSearchByDuplicateEmail < Minitest::Test
   def test_duplicates_finds_nothing_with_empty_json
     client_search = ClientSearch.new(@empty_json)
     search_results = client_search.find_duplicate_emails
-    assert search_results.empty?, "Results should be empty"
+    assert search_results.empty?, 'Results should be empty'
   end
 
   def test_duplicates_finds_nothing_with_no_duplicates
     client_search = ClientSearch.new(@nodup_json)
     search_results = client_search.find_duplicate_emails
-    assert search_results.empty?, "Results should be empty"
+    assert search_results.empty?, 'Results should be empty'
   end
 
   def test_duplicates_finds_multiple_duplicates

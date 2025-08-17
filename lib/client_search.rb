@@ -7,7 +7,7 @@ class ClientSearch
 
   def initialize(json)
     @clients = JSON.parse(json)
-    raise "Expected a list of vales" unless @clients.is_a?(Array)
+    raise 'Expected a list of vales' unless @clients.is_a?(Array)
   rescue JSON::ParserError => e
     raise "Invalid JSON format. Error: #{e.message}"
   end
