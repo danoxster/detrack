@@ -20,7 +20,7 @@ class ClientSearch
   end
 
   def find_duplicate_emails
-    @clients
+    clients
       .group_by { |client_hash| client_hash['email'] }
       .select { |_, hashes| hashes.length > 1 }
       .to_h
