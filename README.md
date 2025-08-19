@@ -48,7 +48,7 @@ client_search --name jane test/fixtures/clients.json
 client_search --duplicates test/fixtures/clients.json
 ```
 
-This will return the following output to STDIN:
+This will return the following output to STDOUT:
 
 ```
 Name search results for 'jane':
